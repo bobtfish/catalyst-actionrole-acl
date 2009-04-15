@@ -1,6 +1,7 @@
 v0.02 Wed Apr 15 11:58:38 CDT 2009
 
  - Use MRO::Compat instead of NEXT to re-dispatch the 'execute' method.
+ - Added missing inc/ directory for Module::Install.
 
 v0.01 Alpha release
 
