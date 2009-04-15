@@ -4,6 +4,7 @@ author:
   - 'David P.C. Wollmann <converter42 at gmail dot com>'
 build_requires:
   Catalyst::Runtime: 0
+  MRO::Compat: 0
   Test::More: 0
   Test::WWW::Mechanize::Catalyst: 0
   ok: 0

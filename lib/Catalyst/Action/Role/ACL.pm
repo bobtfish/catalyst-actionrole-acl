@@ -4,12 +4,13 @@ use 5.008_001;
 
 use strict;
 use warnings;
-use Catalyst::Exception;
-
 use base 'Catalyst::Action';
+use MRO::Compat;
+use mro 'c3';
+Class::C3::initialize();
 
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 =head1 NAME
 
@@ -114,7 +115,7 @@ sub execute {
 
     if ($c->user) {
         if ($self->can_visit($c)) {
-            $self->NEXT::execute(@_);
+            $self->next::method(@_);
             return;
         }
     }
