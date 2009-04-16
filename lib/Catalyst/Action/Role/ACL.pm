@@ -10,7 +10,7 @@ use mro 'c3';
 Class::C3::initialize();
 
 use vars qw($VERSION);
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 =head1 NAME
 
@@ -181,7 +181,7 @@ sub can_visit {
 
 =head1 AUTHOR
 
-David P.C. Wollmann E<lt>converter42 at gmail dot comE<gt>
+David P.C. Wollmann E<lt>converter42@gmail.comE<gt>
 
 =head1 BUGS
 
