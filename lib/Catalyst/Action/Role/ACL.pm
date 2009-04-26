@@ -1,6 +1,6 @@
 package Catalyst::Action::Role::ACL;
 
-use 5.008_001;
+use 5.008;
 
 use strict;
 use warnings;
@@ -11,7 +11,7 @@ use mro 'c3';
 Class::C3::initialize();
 
 use vars qw($VERSION);
-$VERSION = '0.03';
+$VERSION = '0.03_01';
 
 =head1 NAME
 
