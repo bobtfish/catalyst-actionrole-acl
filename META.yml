@@ -20,7 +20,7 @@ no_index:
 requires:
   Catalyst::Runtime: 0
   MRO::Compat: 0
-  perl: 5.8.1
+  perl: 5.8.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.03
+version: 0.03_01
