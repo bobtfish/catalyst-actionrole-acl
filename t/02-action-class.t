@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 33;
+use Test::More tests => 21;
 
 # setup library path
 use FindBin qw($Bin);
@@ -13,81 +13,73 @@ BEGIN {
     use_ok('TestApp');
 }
 
-# a live test against TestApp, the test application
-use Test::WWW::Mechanize::Catalyst 'TestApp';
-my $mech = Test::WWW::Mechanize::Catalyst->new;
-my ($uid, $pwd);
+use Catalyst::Test 'TestApp';
 
-$mech->get_ok('http://localhost/', 'main page');
-$mech->content_like(qr/action: index/i, 'visit index page');
+my ($query, $resp, $user, $uid, $pwd);
 
-# user credentials are defined in TestApp.pm
+my ($res, $c) = ctx_request('/');
 
-# log in: drwho
-$uid = 'drwho';
-$pwd = 'vashtanerada';
-$mech->get_ok("http://localhost/login?user=${uid}&password=${pwd}", 'login page');
-$mech->content_like(qr/logged in: $uid/i, "login user: $uid");
-# log out: drwho
-$mech->get_ok('http://localhost/logout', "$uid: logout");
+$user = $c->user;
+$user->supports(qw/roles/);
 
-# user with no roles
-# log in: evilhax0r
-$uid = 'evilhax0r';
-$pwd = 'ev11';
-$mech->get_ok("http://localhost/login?user=${uid}&password=${pwd}", 'login page');
-$mech->content_like(qr/logged in: $uid/i, "login user: $uid");
-$mech->get_ok("http://localhost/", "$uid: get index pg");
-$mech->get('http://localhost/killit');
-ok($mech->status == 403, "$uid got 403 Forbidden for restricted page, as expected");
-$mech->content_like(qr(access denied), qq($uid: content is "access denied"));
 
-# log in: foo
-$uid = 'foo';
-$pwd = 's3cr3t';
-$mech->get_ok("http://localhost/login?user=${uid}&password=${pwd}", 'login page');
-$mech->content_like(qr/logged in: $uid/i, "login user: $uid");
-# user has required role so should get 200 OK
-$mech->get_ok('http://localhost/edit', qq($uid: action requiring "editor" role));
-$mech->content_like(qr/action: edit/i, "$uid: fetch content Ok");
-# user lacks required role "killer" so should get 403 Forbidden
-$mech->get('http://localhost/killit');
-ok($mech->status == 403, "$uid: got 403 Forbidden, as expected");
-$mech->content_like(qr(access denied), qq($uid: content is "access denied"));
+$user->id('jrandomuser');
+$user->roles(qw/delete editor/);
 
-# user has only one of two required roles so should get 403 Forbidden
-$mech->get('http://localhost/crews');
-ok($mech->status == 403, "$uid: got 403 Forbidden, as expected");
-$mech->content_like(qr(access denied), qq($uid: content is "access denied"));
+$query = '/edit';
+$resp = request($query);
+ok($resp->header('status') == 200, "fetch $query 200 OK");
+is($resp->content, 'action: edit', "content correct");
 
-# similar user with the additional role required for access
-# log in: foo2
-$uid = 'foo2';
-$pwd = 's3cr3t';
-$mech->get_ok("http://localhost/login?user=${uid}&password=${pwd}", 'login page');
-$mech->content_like(qr/logged in: $uid/i, "login user: $uid");
-$mech->get_ok('http://localhost/crews', qq($uid: action requiring "editor" and "banana" roles));
-$mech->content_like(qr/action: crews/i, qq($uid: fetch content Ok));
-# log out: foo2
-$mech->get_ok('http://localhost/logout', "$uid: logout");
-# attempt to access the same page, should get 403
-$mech->get('http://localhost/crews');
-ok($mech->status == 403, "$uid: got 403 Forbidden after logging out, as expected")
-    or diag("unexpected status: " . $mech->status);
+$query = '/killit';
+$resp = request($query);
+ok($resp->header('status') == 403, "fetch $query 403 Forbidden");
+is($resp->content, 'access denied', "content correct");
 
-# log in: william
-$uid = 'william';
-$pwd = 's3cr3t';
-$mech->get_ok("http://localhost/login?user=${uid}&password=${pwd}", 'login page');
-$mech->content_like(qr/logged in: $uid/i, "login user: $uid");
-$mech->get_ok('http://localhost/reese', qq($uid: action allowing access to "sarah" and "shahi" roles));
-$mech->content_like(qr/action: reese/i, qq($uid: fetch content Ok));
+$query = '/crews';
+$resp = request($query);
+ok($resp->header('status') == 403, "fetch $query 403 Forbidden");
+is($resp->content, 'access denied', "content correct");
 
-# log in: william2
-$uid = 'william2';
-$pwd = 's3cr3t';
-$mech->get_ok("http://localhost/login?user=${uid}&password=${pwd}", 'login page');
-$mech->content_like(qr/logged in: $uid/i, "login user: $uid");
-$mech->get_ok('http://localhost/reese', qq($uid: action allowing access to "sarah" and "shahi" roles));
-$mech->content_like(qr/action: reese/i, qq($uid: fetch content Ok));
+# add the required role (banana) so user can visit the action
+$user->roles(qw/delete editor banana/);
+
+$query = '/crews?someparm=42';
+$resp = request($query);
+ok($resp->header('status') == 200, "fetch $query 200 OK");
+is($resp->content, 'action: crews', "content correct");
+
+# /reese' ACL permits users with either 'sarah' or 'shahi' role
+$query = '/reese';
+$resp = request($query);
+ok($resp->header('status') == 403, "fetch $query 403 Forbidden");
+is($resp->content, 'access denied', "content correct");
+
+# add one of the AllowedRole roles (sarah) so user can visit the action
+$user->roles(qw/delete editor banana sarah/);
+$resp = request($query);
+ok($resp->header('status') == 200, "fetch $query 200 OK");
+is($resp->content, 'action: reese', "content correct");
+
+# remove all roles, save one of the AllowedRole roles
+$user->roles('shahi');
+ok($resp->header('status') == 200, "fetch $query 200 OK");
+is($resp->content, 'action: reese', "content correct");
+
+# action requires role 'swayze' and at least one of 'actor'
+# or 'guerilla'
+$query = '/wolverines?attacker=spetznatz';
+$resp = request($query);
+ok($resp->header('status') == 403, "fetch $query 403 Forbidden");
+is($resp->content, 'access denied', "content correct");
+# give user the RequiresRole role
+$user->roles($user->roles, 'swayze');
+# request should fail because AllowedRole still not satisfied
+ok($resp->header('status') == 403, "fetch $query 403 Forbidden");
+is($resp->content, 'access denied', "content correct");
+# give user one of the AllowedRoles roles
+$user->roles($user->roles, 'actor');
+$resp = request($query);
+ok($resp->header('status') == 200, "fetch $query 200 OK");
+is($resp->content, 'action: wolverines', "content correct");
 

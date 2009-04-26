@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 30;
+use Test::More tests => 6;
 
 # setup library path
 use FindBin qw($Bin);
@@ -13,55 +13,40 @@ BEGIN {
     use_ok('TestCanVisit');
 }
 
-# a live test against TestCanVisit, the test application
-use Test::WWW::Mechanize::Catalyst 'TestCanVisit';
-my $mech = Test::WWW::Mechanize::Catalyst->new;
-my ($uid, $pwd);
+use Catalyst::Test 'TestCanVisit';
 
-$mech->get_ok('http://localhost/', 'main page');
-$mech->content_like(qr/action: index/i, 'visit index page');
+my ($action, $query, $resp, $user, $uid, $pwd);
 
-# user credentials are defined in TestCanVisit.pm
+my ($res, $c) = ctx_request('/');
 
-# log in: drwho
-$uid = 'drwho';
-$pwd = 'vashta nerada';
-$mech->get_ok("http://localhost/login?user=${uid}&password=${pwd}", 'login page');
-$mech->content_like(qr/logged in: $uid/i, "login user: $uid");
-$mech->get_ok("http://localhost/access?action_name=unreachable");
-$mech->content_is('no');
-$mech->get_ok("http://localhost/access?action_name=thedoctor");
-$mech->content_is('yes');
-$mech->get_ok("http://localhost/access?action_name=readstuff");
-$mech->content_is('no');
-# log out: drwho
-$mech->get_ok('http://localhost/logout', "$uid: logout");
+$user = $c->user;
+$user->supports(qw/roles/);
 
-# log in: evilhax0r
-$uid = 'evilhax0r';
-$pwd = 'ev11';
-$mech->get_ok("http://localhost/login?user=${uid}&password=${pwd}", 'login page');
-$mech->content_like(qr/logged in: $uid/i, "login user: $uid");
-$mech->get_ok("http://localhost/access?action_name=unreachable");
-$mech->content_is('no');
-$mech->get_ok("http://localhost/access?action_name=thedoctor");
-$mech->content_is('no');
-$mech->get_ok("http://localhost/access?action_name=readstuff");
-$mech->content_is('no');
-# log out: evilhax0r
-$mech->get_ok('http://localhost/logout', "$uid: logout");
+$user->id('jrandomuser');
 
-# log in: regularjoe
-$uid = 'regularjoe';
-$pwd = 'witty';
-$mech->get_ok("http://localhost/login?user=${uid}&password=${pwd}", 'login page');
-$mech->content_like(qr/logged in: $uid/i, "login user: $uid");
-$mech->get_ok("http://localhost/access?action_name=unreachable");
-$mech->content_is('no');
-$mech->get_ok("http://localhost/access?action_name=thedoctor");
-$mech->content_is('no');
-$mech->get_ok("http://localhost/access?action_name=readstuff");
-$mech->content_is('yes');
-# log out: regularjoe
-$mech->get_ok('http://localhost/logout', "$uid: logout");
+$query = '/access?action_name=';
+
+$action = 'unreachable';
+$resp = get($query.$action);
+is($resp, 'no', "user cannot access unreachable");
+
+$user->roles(qw/user/);
+$action = 'edit';
+$resp = get($query.$action);
+is($resp, 'no', "user cannot visit 'edit'");
+
+$user->roles(qw/admin/);
+$action = 'edit';
+$resp = get($query.$action);
+is($resp, 'yes', "user can visit 'edit'");
+
+$user->roles(qw/admin/);
+$action = 'read';
+$resp = get($query.$action);
+is($resp, 'no', "user cannot visit 'read'");
+
+$user->roles(qw/user/);
+$action = 'read';
+$resp = get($query.$action);
+is($resp, 'yes', "user can visit 'read'");
 

@@ -4,7 +4,8 @@ use 5.008_001;
 
 use strict;
 use warnings;
-use base 'Catalyst::Action';
+use base qw/Catalyst::Action/;
+use Catalyst::Exception;
 use MRO::Compat;
 use mro 'c3';
 Class::C3::initialize();
@@ -18,20 +19,21 @@ Catalyst::Action::Role::ACL - User role-based authorization action class.
 
 =head1 SYNOPSIS
 
- sub foo :Local
+ sub foo
+ :Local
  :ActionClass(Role::ACL)
- :RequiresRole(admin) {
+ :RequiresRole(admin)
+ :ACLDetachTo(denied)
+ {
      my ($self, $c) = @_;
      ...
  }
 
- # elsewhere
- sub end :ActionClass('RenderView') {
+ sub denied :Private {
      my ($self, $c) = @_;
 
-     if ($c->res->status eq '403') {
-         $c->detach('denied');
-     }
+     $c->res->status = '403';
+     $c->body('Denied!');
  }
 
 =head1 DESCRIPTION
@@ -47,6 +49,13 @@ One or more roles may be associated with an action.
 Roles specified with the RequiresRole attribute are processed before roles
 specified with the AllowedRole attribute.
 
+The mandatory ACLDetachTo attribute specifies the name of the action to which
+execution will detach on access violation. Failure to specify this attribute
+will result in a run-time exception.
+
+ACLDetachTo allows us to short-circuit traversal of an action chain as soon as
+access is denied to one of the actions in the chain by its ACL.
+
 An action with an empty ACL (no role attributes assigned) is unreachable by any
 user regardless of the roles assigned to his account. This is not particularly
 useful, and at some point will be changed so that the absence of role attributes
@@ -60,9 +69,12 @@ allowed for each link in the chain (or no roles at all).
 
 =head2 Examples
 
- sub foo :Local
+ sub foo
+ :Local
  :ActionClass(Role::ACL)
- :RequiresRole(admin) {
+ :RequiresRole(admin)
+ :ACLDetachTo(denied)
+ {
      my ($self, $c) = @_;
      ...
  }
@@ -73,7 +85,9 @@ This action may only be executed by users with the 'admin' role.
  :ActionClass(Role::ACL)
  :RequiresRole(admin)
  :AllowedRole(editor)
- :AllowedRole(writer) {
+ :AllowedRole(writer)
+ :ACLDetachTo(denied)
+ {
      my ($self, $c) = @_;
      ...
  }
@@ -84,15 +98,20 @@ also either the 'editor' or 'writer' role (or both).
  sub easy :Local
  :ActionClass(Role::ACL)
  :AllowedRole(admin)
- :AllowedRole(user) {
+ :AllowedRole(user)
+ :ACLDetachTo(denied)
+ {
      my ($self, $c) = @_;
      ...
  }
 
 Any user with either the 'admin' or 'user' role may execute this action.
 
- sub unreachable :Local
- :ActionClass(Role::ACL) {
+ sub unreachable
+ :Local
+ :ActionClass(Role::ACL)
+ :ACLDetachTo(denied)
+ {
      my ($self, $c) = @_;
      ...
  }
@@ -105,7 +124,7 @@ and cause an exception.
 
 =head2 execute
 
-See L<Catalyst::Action/METHODS/action>.
+See L<Catalyst::Action|METHODS/action>
 
 =cut
 
@@ -120,10 +139,11 @@ sub execute {
         }
     }
 
-    $c->res->status(403);
+    my $denied = $self->attributes->{ACLDetachTo}[0];
+    $denied || Catalyst::Exception->throw(
+        'action failed to specify the "ACLDetachTo" attribute: ' . $self);
 
-    # execution should now fall through to a private 'end' action that
-    # will branch on $c->res->status eq '403'
+    $c->detach($denied);
 }
 
 =head2 can_visit($c)
