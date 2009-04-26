@@ -6,96 +6,58 @@ use warnings;
 use Catalyst;
 use base 'Catalyst::Controller';
 
-__PACKAGE__->config(namespace => q{});
+my $msg = '';
 
-sub index :Path Args(0) {
+__PACKAGE__->config(
+    namespace => q{},
+);
+
+sub index :Local Args(0) {
     my ($self, $c) = @_;
-    $c->res->body('action: index');
+    $c->stash->{msg} = 'index';
 }
 
-# Request for http://localhost/stage2 requires both
-# 'admin' and 'superuser' roles:
-
 sub stage1
-:Local
-:ActionClass(Role::ACL)
-:RequiresRole(admin)
+:Chained('/')
+:CaptureArgs(0)
+:ActionClass('Role::ACL')
+:RequiresRole('admin')
+:ACLDetachTo('denied')
 {
     my ($self, $c) = @_;
-    $c->res->body('Ok');
+    $c->stash->{msg} .= '-stage1';
 }
 
 sub stage2
 :Chained('stage1')
-:Path(stage2)
-:ActionClass(Role::ACL)
-:RequiresRole(superuser)
+:CaptureArgs(0)
+:ActionClass('Role::ACL')
+:RequiresRole('superuser')
+:ACLDetachTo('denied')
 {
     my ($self, $c) = @_;
-    $c->res->body('Ok');
-}
-
-sub login :Local {
-    my ($self, $c) = @_;
-
-    my $creds = {
-        username => $c->req->params->{user},
-        password => $c->req->params->{password},
-    };
-
-    my $uid;
-
-    if ($c->authenticate($creds, 'members')) {
-        $uid = $c->user->id;
-    }
-    else {
-        $uid = '*';
-    }
-
-    $c->res->body("logged in: $uid");
-}
-
-sub logout :Local {
-    my ($self, $c) = @_;
-
-    if (my $user = $c->user) {
-        # we can't wait for sessions to expire on their own
-        $c->delete_session;
-        $user->logout;
-        $c->res->redirect($c->uri_for());
-    }
-    else {
-        $c->detach('denied');
-    }
+    $c->stash->{msg} .= '-stage2';
 }
 
 sub edit
-:Local
-:ActionClass(Role::ACL)
-:RequiresRole(editor)
+:Chained('stage2')
+:ActionClass('Role::ACL')
+:RequiresRole('editor')
+:ACLDetachTo('denied')
+:Args(0)
 {
     my ($self, $c) = @_;
-    $c->res->body("action: edit");
-}
-
-sub end :ActionClass('RenderView') {
-    my ($self, $c) = @_;
-
-    if ($c->res->status == 403) {
-        $c->detach('denied');
-    }
+    $c->stash->{msg} .= '-edit';
+    $c->res->body($c->stash->{msg});
 }
 
 sub denied :Private {
     my ($self, $c) = @_;
 
+    $c->res->status(403);
     $c->res->body('access denied');
 }
 
 
 1;
-
-
-__END__
-/usr/lib64/perl5/site_perl/5.8.8/Class/Accessor.pm
 
