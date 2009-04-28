@@ -1,7 +1,12 @@
-v0.02 Wed Apr 15 11:58:38 CDT 2009
+v0.04  Tue Apr 28 11:09:54 CDT 2009
+  - Added attribute validation with exceptions to Role::ACL constructor.
+  - Action must include at least one RequiresRole or AllowedRole attribute or an exception will result.
+  - Added mandatory "ACLDetachTo" attribute, names action to which request is detached on ACL violation.
+  - Removed tests against "unreachable" action, since actions without ACLs now generate exceptions.
 
- - Use MRO::Compat instead of NEXT to re-dispatch the 'execute' method.
- - Added missing inc/ directory for Module::Install.
+v0.02  Wed Apr 15 11:58:38 CDT 2009
+  - Use MRO::Compat instead of NEXT to re-dispatch the 'execute' method.
+  - Added missing inc/ directory for Module::Install.
 
 v0.01 Alpha release
 
