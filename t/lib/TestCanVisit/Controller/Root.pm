@@ -23,11 +23,6 @@ sub access :Local {
     $c->res->body($rc ? 'yes' : 'no');
 }
 
-sub unreachable
-    :Local
-    :ActionClass(Role::ACL)
-    :ACLDetachTo(denied)
-    { }
 sub edit
     :Local
     :ActionClass(Role::ACL)

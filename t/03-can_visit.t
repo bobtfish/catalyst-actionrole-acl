@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 5;
 
 # setup library path
 use FindBin qw($Bin);
@@ -25,10 +25,6 @@ $user->supports(qw/roles/);
 $user->id('jrandomuser');
 
 $query = '/access?action_name=';
-
-$action = 'unreachable';
-$resp = get($query.$action);
-is($resp, 'no', "user cannot access unreachable");
 
 $user->roles(qw/user/);
 $action = 'edit';
