@@ -8,9 +8,20 @@ with 'Catalyst::ActionRole::ACL';
 use vars qw($VERSION);
 $VERSION = '0.04';
 
+{
+    my $has_warned = 0;
+    after BUILD => sub {
+        my ($c) = @_;
+        warn("Catalyst::Action::Role::ACL is deprecated, please move you code to use Catalyst::ActionRole::ACL\n")
+            unless $has_warned++;
+    };
+}
+
+__PACKAGE__->meta->make_immutable;
+
 =head1 NAME
 
-Catalyst::Action::Role::ACL - User role-based authorization action class
+Catalyst::Action::Role::ACL - Deprecated user role-based authorization action class
 
 =head1 SYNOPSIS
 
@@ -37,127 +48,9 @@ Provides a L<Catalyst reusable action|Catalyst::Manual::Actions> for user
 role-based authorization. ACLs are applied via the assignment of attributes to
 application action subroutines.
 
-=head1 REQUIRED ATTRIBUTES
-
-Failure to include the following required attributes will result in an exception
-when the ACL::Role action's constructor is called.
-
-=head2 ACLDetachTo
-
-The name of an action to which the request should be detached if it is
-determined that ACLs are not satisfied for this user and the resource he
-is attempting to access.
-
-=head2 RequiresRole and AllowedRole
-
-The action must include at least one of these attributes, otherwise the Role::ACL
-constructor will throw an exception.
-
-=head1 Processing of ACLs
-
-One or more roles may be associated with an action.
-
-User roles are fetched via the invocation of the context "user" object's "roles"
-method.
-
-Roles specified with the RequiresRole attribute are checked before roles
-specified with the AllowedRole attribute.
-
-The mandatory ACLDetachTo attribute specifies the name of the action to which
-execution will detach on access violation.
-
-ACLs may be applied to chained actions so that different roles are required or
-allowed for each link in the chain (or no roles at all).
-
-ACLDetachTo allows us to short-circuit traversal of an action chain as soon as
-access is denied to one of the actions in the chain by its ACL.
-
-=head2 Examples
-
- # this is an invalid action
- sub broken
- :Local
- :ActionClass(Role::ACL)
- {
-     my ($self, $c) = @_;
-     ...
- }
-
- This action will cause an exception because it's missing the ACLDetachTo attribute
- and has neither a RequiresRole nor an AllowedRole attribute. A Role::ACL action
- must include at least one RequiresRole or AllowedRole attribute.
-
- sub foo
- :Local
- :ActionClass(Role::ACL)
- :RequiresRole(admin)
- :ACLDetachTo(denied)
- {
-     my ($self, $c) = @_;
-     ...
- }
-
-This action may only be executed by users with the 'admin' role.
-
- sub bar :Local
- :ActionClass(Role::ACL)
- :RequiresRole(admin)
- :AllowedRole(editor)
- :AllowedRole(writer)
- :ACLDetachTo(denied)
- {
-     my ($self, $c) = @_;
-     ...
- }
-
-This action requires that the user has the 'admin' role and
-either the 'editor' or 'writer' role (or both).
-
- sub easy :Local
- :ActionClass(Role::ACL)
- :AllowedRole(admin)
- :AllowedRole(user)
- :ACLDetachTo(denied)
- {
-     my ($self, $c) = @_;
-     ...
- }
-
-Any user with either the 'admin' or 'user' role may execute this action.
-
-=head1 METHODS
-
-=cut
-
-=head2 C<new( $args )>
-
-Overrides the Catalyst::Action constructor to provide validation of parameters.
-
-Throws an exception if parameters are missing or invalid.
-
-=cut
-
-=head2 C<execute( $controller, $c )>
-
-Overrides &Catalyst::Action::execute.
-
-In order for delegation to occur, the context 'user' object must exist (authenticated user) and
-the C<can_visit> method must return a true value.
-
-See L<Catalyst::Action|METHODS/action>
-
-=cut
-
-=head2 C<can_visit( $c )>
-
-Return true if the authenticated user can visit this action.
-
-This method is useful for determining in advance if a user can execute
-a given action.
-
-=cut
-
-1;
+You are better using L<Catalyst::ActionRole::ACL> to do this, as it plays
+nicely with other extensions. This package is maintained to allow compatibility
+with people using this in existing code, but will warn once when used.
 
 =head1 AUTHOR
 
@@ -173,4 +66,6 @@ Copyright 2009 by David P.C. Wollmann
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.
+
+=cut
 
