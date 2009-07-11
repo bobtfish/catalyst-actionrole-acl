@@ -11,6 +11,12 @@ Catalyst::ActionRole::ACL - User role-based authorization action class
 
 =head1 SYNOPSIS
 
+ package MyApp::Controller::Foo;
+ use Moose;
+ use namespace::autoclean;
+
+ BEGIN { extends 'Catalyst::Controller::ActionRole' }
+
  sub foo
  :Local
  :Does(ACL)
@@ -30,8 +36,9 @@ Catalyst::ActionRole::ACL - User role-based authorization action class
 
 =head1 DESCRIPTION
 
-Provides a L<Catalyst reusable action|Catalyst::Manual::Actions> for user
-role-based authorization. ACLs are applied via the assignment of attributes to
+Provides a L<Catalyst reusable action role|Catalyst::Controller::ActionRole>
+for user role-based authorization.
+ACLs are applied via the assignment of attributes to
 application action subroutines.
 
 =head1 REQUIRED ATTRIBUTES
@@ -122,13 +129,11 @@ either the 'editor' or 'writer' role (or both).
 
 Any user with either the 'admin' or 'user' role may execute this action.
 
-=head1 METHODS
+=head1 WRAPPED METHODS
 
 =cut
 
-=head2 C<new( $args )>
-
-Overrides the Catalyst::Action constructor to provide validation of parameters.
+=head2 C<BUILD( $args )>
 
 Throws an exception if parameters are missing or invalid.
 
