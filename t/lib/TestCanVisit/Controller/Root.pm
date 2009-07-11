@@ -1,10 +1,8 @@
 package TestCanVisit::Controller::Root;
+use Moose;
+use namespace::autoclean;
 
-use strict;
-use warnings;
-
-use Catalyst;
-use base 'Catalyst::Controller';
+BEGIN { extends 'Catalyst::Controller::ActionRole' };
 
 __PACKAGE__->config(namespace => q{});
 
@@ -25,14 +23,14 @@ sub access :Local {
 
 sub edit
     :Local
-    :ActionClass(Role::ACL)
+    :Does('ACL')
     :AllowedRole(admin)
     :AllowedRole(editor)
     :ACLDetachTo(denied)
     { }
 sub read
     :Local
-    :ActionClass(Role::ACL)
+    :Does('ACL')
     :RequiresRole(user)
     :ACLDetachTo(denied)
     { }
@@ -45,5 +43,5 @@ sub denied :Private {
 }
 
 
-1;
+__PACKAGE__->meta->make_immutable;
 

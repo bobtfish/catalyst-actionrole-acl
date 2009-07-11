@@ -1,10 +1,8 @@
 package TestChained::Controller::Root;
+use Moose;
+use namespace::autoclean;
 
-use strict;
-use warnings;
-
-use Catalyst;
-use base 'Catalyst::Controller';
+BEGIN { extends 'Catalyst::Controller::ActionRole' };
 
 my $msg = '';
 
@@ -20,7 +18,7 @@ sub index :Local Args(0) {
 sub stage1
 :Chained('/')
 :CaptureArgs(0)
-:ActionClass('Role::ACL')
+:Does('ACL')
 :RequiresRole('admin')
 :ACLDetachTo('denied')
 {
@@ -31,7 +29,7 @@ sub stage1
 sub stage2
 :Chained('stage1')
 :CaptureArgs(0)
-:ActionClass('Role::ACL')
+:Does('ACL')
 :RequiresRole('superuser')
 :ACLDetachTo('denied')
 {
@@ -41,7 +39,7 @@ sub stage2
 
 sub edit
 :Chained('stage2')
-:ActionClass('Role::ACL')
+:Does('ACL')
 :RequiresRole('editor')
 :ACLDetachTo('denied')
 :Args(0)
@@ -59,5 +57,5 @@ sub denied :Private {
 }
 
 
-1;
+__PACKAGE__->meta->make_immutable;
 

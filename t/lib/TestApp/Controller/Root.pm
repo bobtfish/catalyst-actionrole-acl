@@ -1,10 +1,8 @@
 package TestApp::Controller::Root;
+use Moose;
+use namespace::autoclean;
 
-use strict;
-use warnings;
-
-use Catalyst;
-use base 'Catalyst::Controller';
+BEGIN { extends 'Catalyst::Controller::ActionRole' };
 
 __PACKAGE__->config(namespace => q{});
 
@@ -15,7 +13,7 @@ sub index :Path Args(0) {
 
 sub edit
 :Local
-:ActionClass(Role::ACL)
+:Does('ACL')
 :RequiresRole(editor)
 :ACLDetachTo(denied)
 {
@@ -25,7 +23,7 @@ sub edit
 
 sub killit
 :Local
-:ActionClass(Role::ACL)
+:Does('ACL')
 :RequiresRole(killer)
 :ACLDetachTo(denied)
 {
@@ -35,7 +33,7 @@ sub killit
 
 sub crews
 :Local
-:ActionClass(Role::ACL)
+:Does('ACL')
 :RequiresRole(editor)
 :RequiresRole(banana)
 :ACLDetachTo(denied)
@@ -46,7 +44,7 @@ sub crews
 
 sub reese
 :Local
-:ActionClass(Role::ACL)
+:Does('ACL')
 :AllowedRole(sarah)
 :AllowedRole(shahi)
 :ACLDetachTo(denied)
@@ -57,7 +55,7 @@ sub reese
 
 sub wolverines
 :Local
-:ActionClass(Role::ACL)
+:Does('ACL')
 :RequiresRole('swayze')
 :AllowedRole('actor')
 :AllowedRole('guerilla')
@@ -75,5 +73,5 @@ sub denied :Private {
 }
 
 
-1;
+__PACKAGE__->meta->make_immutable;
 
