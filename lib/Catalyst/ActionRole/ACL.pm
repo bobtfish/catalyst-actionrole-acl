@@ -236,6 +236,10 @@ sub can_visit {
 
 David P.C. Wollmann E<lt>converter42@gmail.comE<gt>
 
+=head1 CONTRIBUTORS
+
+Converted from an action class to an action role by Tomas Doran (t0m)
+
 =head1 BUGS
 
 This is new code. Find the bugs and report them, please.
