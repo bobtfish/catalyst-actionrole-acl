@@ -1,16 +1,13 @@
-package Catalyst::Action::Role::ACL;
-use Moose;
+package Catalyst::ActionRole::ACL;
+use Moose::Role;
 use namespace::autoclean;
-
-extends 'Catalyst::Action';
-with 'Catalyst::ActionRole::ACL';
 
 use vars qw($VERSION);
 $VERSION = '0.04';
 
 =head1 NAME
 
-Catalyst::Action::Role::ACL - User role-based authorization action class
+Catalyst::ActionRole::ACL - User role-based authorization action class
 
 =head1 SYNOPSIS
 
@@ -137,6 +134,24 @@ Throws an exception if parameters are missing or invalid.
 
 =cut
 
+sub BUILD { }
+
+after BUILD => sub {
+    my $class = shift;
+    my ($args) = @_;
+
+    my $attr = $args->{attributes};
+
+    unless (exists $attr->{RequiresRole} || exists $attr->{AllowedRole}) {
+        Catalyst::Exception->throw(
+            "Action '$args->{reverse}' requires at least one RequiresRole or AllowedRole attribute");
+    }
+    unless (exists $attr->{ACLDetachTo} && $attr->{ACLDetachTo}) {
+        Catalyst::Exception->throw(
+            "Action '$args->{reverse}' requires the ACLDetachTo(<action>) attribute");
+    }
+};
+
 =head2 C<execute( $controller, $c )>
 
 Overrides &Catalyst::Action::execute.
@@ -148,6 +163,22 @@ See L<Catalyst::Action|METHODS/action>
 
 =cut
 
+around execute => sub {
+    my $orig = shift;
+    my $self = shift;
+    my ($controller, $c) = @_;
+
+    if ($c->user) {
+        if ($self->can_visit($c)) {
+            return $self->$orig(@_);
+        }
+    }
+
+    my $denied = $self->attributes->{ACLDetachTo}[0];
+
+    $c->detach($denied);
+};
+
 =head2 C<can_visit( $c )>
 
 Return true if the authenticated user can visit this action.
@@ -157,7 +188,49 @@ a given action.
 
 =cut
 
+sub can_visit {
+    my ($self, $c) = @_;
+
+    my $user = $c->user;
+
+    return unless $user;
+
+    return unless
+        $user->supports('roles') && $user->can('roles');
+
+    my %user_has = map {$_,1} $user->roles;
+
+    my $required = $self->attributes->{RequiresRole};
+    my $allowed = $self->attributes->{AllowedRole};
+
+    if ($required && $allowed) {
+        for my $role (@$required) {
+            return unless $user_has{$role};
+        }
+        for my $role (@$allowed) {
+            return 1 if $user_has{$role};
+        }
+        return;
+    }
+    elsif ($required) {
+        for my $role (@$required) {
+            return unless $user_has{$role};
+        }
+        return 1;
+    }
+    elsif ($allowed) {
+        for my $role (@$allowed) {
+            return 1 if $user_has{$role};
+        }
+        return;
+    }
+
+    return;
+}
+
 1;
+
+
 
 =head1 AUTHOR
 
