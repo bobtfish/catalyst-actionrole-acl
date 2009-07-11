@@ -13,7 +13,7 @@ Catalyst::ActionRole::ACL - User role-based authorization action class
 
  sub foo
  :Local
- :ActionClass(Role::ACL)
+ :Does(ACL)
  :RequiresRole(admin)
  :ACLDetachTo(denied)
  {
@@ -74,7 +74,7 @@ access is denied to one of the actions in the chain by its ACL.
  # this is an invalid action
  sub broken
  :Local
- :ActionClass(Role::ACL)
+ :Does(ACL)
  {
      my ($self, $c) = @_;
      ...
@@ -86,7 +86,7 @@ access is denied to one of the actions in the chain by its ACL.
 
  sub foo
  :Local
- :ActionClass(Role::ACL)
+ :Does(ACL)
  :RequiresRole(admin)
  :ACLDetachTo(denied)
  {
@@ -97,7 +97,7 @@ access is denied to one of the actions in the chain by its ACL.
 This action may only be executed by users with the 'admin' role.
 
  sub bar :Local
- :ActionClass(Role::ACL)
+ :Does(ACL)
  :RequiresRole(admin)
  :AllowedRole(editor)
  :AllowedRole(writer)
@@ -111,7 +111,7 @@ This action requires that the user has the 'admin' role and
 either the 'editor' or 'writer' role (or both).
 
  sub easy :Local
- :ActionClass(Role::ACL)
+ :Does(ACL)
  :AllowedRole(admin)
  :AllowedRole(user)
  :ACLDetachTo(denied)
