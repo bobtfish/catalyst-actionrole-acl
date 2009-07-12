@@ -1,3 +1,6 @@
+v0.05  UNRELEASED
+  - Convert from an action class into an ActionRole (t0m)
+
 v0.04  Tue Apr 28 11:09:54 CDT 2009
   - Added attribute validation with exceptions to Role::ACL constructor.
   - Action must include at least one RequiresRole or AllowedRole attribute or an exception will result.

@@ -3,7 +3,7 @@ use Moose::Role;
 use namespace::autoclean;
 
 use vars qw($VERSION);
-$VERSION = '0.04';
+$VERSION = '0.05'; # REMEMBER TO BUMP VERSION IN Action::Role::ACL ALSO!
 
 =head1 NAME
 
@@ -234,8 +234,6 @@ sub can_visit {
 }
 
 1;
-
-
 
 =head1 AUTHOR
 

@@ -6,13 +6,14 @@ extends 'Catalyst::Action';
 with 'Catalyst::ActionRole::ACL';
 
 use vars qw($VERSION);
-$VERSION = '0.04';
+$VERSION = '0.05'; # Note - Remember to keep in sync with Catalyst::ActionRole::ACL
 
 {
     my $has_warned = 0;
     after BUILD => sub {
         my ($c) = @_;
-        warn("Catalyst::Action::Role::ACL is deprecated, please move you code to use Catalyst::ActionRole::ACL\n")
+        my $app = blessed($c) ? blessed($c) : $c;
+        warn("Catalyst::Action::Role::ACL in $app is deprecated, please move you code to use Catalyst::ActionRole::ACL\n")
             unless $has_warned++;
     };
 }
