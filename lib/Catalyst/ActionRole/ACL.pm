@@ -30,8 +30,8 @@ Catalyst::ActionRole::ACL - User role-based authorization action class
  sub denied :Private {
      my ($self, $c) = @_;
 
-     $c->res->status = '403';
-     $c->body('Denied!');
+     $c->res->status('403');
+     $c->res->body('Denied!');
  }
 
 =head1 DESCRIPTION
