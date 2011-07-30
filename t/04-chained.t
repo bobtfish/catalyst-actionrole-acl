@@ -35,17 +35,17 @@ $query = '/stage1/stage2/edit';
 
 $user->roles(qw/admin/);
 $resp = request($query);
-ok($resp->header('status') == 403, "fetch $query 403 Forbidden");
+ok($resp->code == 403, "fetch $query 403 Forbidden");
 is($resp->content, 'access denied', "content correct");
 
 $user->roles(qw/admin superuser/);
 $resp = request($query);
-ok($resp->header('status') == 403, "fetch $query 403 Forbidden");
+ok($resp->code == 403, "fetch $query 403 Forbidden");
 is($resp->content, 'access denied', "content correct");
 
 $user->roles(qw/admin superuser editor/);
 $resp = request($query);
-ok($resp->header('status') == 200, "fetch $query 200 OK");
+ok($resp->code == 200, "fetch $query 200 OK");
 $expect = '-stage1-stage2-edit';
 is($resp->content, $expect, "content correct: $expect");
 
