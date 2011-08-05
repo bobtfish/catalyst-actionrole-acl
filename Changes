@@ -1,4 +1,4 @@
-v0.06
+v0.06 Fri Aug 5 08:14:00 BST 2011
   - Fix to work with Catalyst 5.9. RT#67863
   - Add repository metadata
   - Documentation fixes (stephan48)

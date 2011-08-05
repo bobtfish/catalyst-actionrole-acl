@@ -6,7 +6,7 @@ extends 'Catalyst::Action';
 with 'Catalyst::ActionRole::ACL';
 
 use vars qw($VERSION);
-$VERSION = '0.05'; # Note - Remember to keep in sync with Catalyst::ActionRole::ACL
+$VERSION = '0.06'; # Note - Remember to keep in sync with Catalyst::ActionRole::ACL
 
 {
     my $has_warned = 0;
