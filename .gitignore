@@ -4,6 +4,7 @@ META.yml
 Makefile
 blib
 pm_to_blib
+MYMETA.yml
 MANIFEST
 MANIFEST.skip
 Makefile.old

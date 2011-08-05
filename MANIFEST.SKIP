@@ -3,6 +3,7 @@
 .svn/
 blib
 pm_to_blib
+MYMETA.yml
 MANIFEST.bak
 MANIFEST.SKIP~
 cover_db
