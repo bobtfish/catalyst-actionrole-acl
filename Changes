@@ -1,6 +1,9 @@
+v0.06
+  - Fix to work with Catalyst 5.9. RT#67863
+  - Add repository metadata
   - Documentation fixes (stephan48)
 
-v0.05  UNRELEASED
+v0.05  Sun Jul 12 21:18:21 CDT 2009
   - Convert from an action class into an ActionRole (t0m)
 
 v0.04  Tue Apr 28 11:09:54 CDT 2009
