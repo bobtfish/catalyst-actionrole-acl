@@ -10,6 +10,8 @@ requires 'namespace::autoclean';
 
 test_requires 'Test::More';
 
+resources repository => 'git://github.com/bobtfish/catalyst-actionrole-acl.git';
+
 WriteAll();
 
 if ($Module::Install::AUTHOR) {
