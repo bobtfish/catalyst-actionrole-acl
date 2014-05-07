@@ -6,7 +6,7 @@ SYNOPSIS
      use Moose;
      use namespace::autoclean;
 
-     BEGIN { extends 'Catalyst::Controller::ActionRole' }
+     BEGIN { extends 'Catalyst::Controller' }
 
      sub foo
      :Local
@@ -26,9 +26,9 @@ SYNOPSIS
      }
 
 DESCRIPTION
-    Provides a Catalyst reusable action role for user role-based
-    authorization. ACLs are applied via the assignment of attributes to
-    application action subroutines.
+    Provides a reusable action role for user role-based authorization. ACLs
+    are applied via the assignment of attributes to application action
+    subroutines.
 
 REQUIRED ATTRIBUTES
     Failure to include the following required attributes will result in an
