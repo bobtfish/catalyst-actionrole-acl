@@ -36,10 +36,9 @@ Catalyst::ActionRole::ACL - User role-based authorization action class
 
 =head1 DESCRIPTION
 
-Provides a reusable action role
-for user role-based authorization.
-ACLs are applied via the assignment of attributes to
-application action subroutines.
+Provides a reusable action role for user role-based authorization. ACLs
+are applied via the assignment of attributes to application action
+subroutines.
 
 =head1 REQUIRED ATTRIBUTES
 
