@@ -1,3 +1,5 @@
+  - Really fix RT#78334 by not requiring Catalyst::Controller::ActionRole
+
 v0.07 Fri Jul 13 13:39:00 BST 2011
   - Change to work with (and require) Catalyst::Runtime >= 5.90013
     RT#78334

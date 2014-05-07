@@ -5,7 +5,6 @@ all_from 'lib/Catalyst/ActionRole/ACL.pm';
 
 requires 'Catalyst::Runtime' => '5.90013';
 requires 'Moose';
-requires 'Catalyst::Controller::ActionRole';
 requires 'namespace::autoclean';
 
 test_requires 'Test::More';
