@@ -3,9 +3,8 @@ use inc::Module::Install 0.91;
 name 'Catalyst-ActionRole-ACL';
 all_from 'lib/Catalyst/ActionRole/ACL.pm';
 
-requires 'Catalyst::Runtime';
+requires 'Catalyst::Runtime' => 5.90013;
 requires 'Moose';
-requires 'Catalyst::Controller::ActionRole';
 requires 'namespace::autoclean';
 
 test_requires 'Test::More';

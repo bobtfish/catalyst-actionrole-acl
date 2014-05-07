@@ -2,7 +2,7 @@ package TestApp::Controller::Root;
 use Moose;
 use namespace::autoclean;
 
-BEGIN { extends 'Catalyst::Controller::ActionRole' };
+BEGIN { extends 'Catalyst::Controller' };
 
 __PACKAGE__->config(namespace => q{});
 
