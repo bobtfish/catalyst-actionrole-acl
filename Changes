@@ -1,4 +1,5 @@
-  - Require Catalyst::Runtime 5.90013 instead of the deprecated
+v0.07 Wed May 7 18:30:00 CEST 2014
+- Require Catalyst::Runtime 5.90013 instead of the deprecated
     Catalyst::Controller::ActionRole (workaround RT#90972)
 
 v0.06 Fri Aug 5 08:14:00 BST 2011
